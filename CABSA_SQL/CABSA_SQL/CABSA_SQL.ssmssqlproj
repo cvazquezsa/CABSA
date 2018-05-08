@@ -37,6 +37,54 @@
           <AssociatedConnUserName>sa</AssociatedConnUserName>
           <FullPath>01-Tablas.sql</FullPath>
         </FileNode>
+        <FileNode Name="spConSATMonitorearRuta.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
+          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
+          <FullPath>spConSATMonitorearRuta.sql</FullPath>
+        </FileNode>
+        <FileNode Name="spECollaboration.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
+          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
+          <FullPath>spECollaboration.sql</FullPath>
+        </FileNode>
+        <FileNode Name="spRSFlujoEfectivo.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
+          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
+          <FullPath>spRSFlujoEfectivo.sql</FullPath>
+        </FileNode>
+        <FileNode Name="tgCABCentroCosto.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
+          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
+          <FullPath>tgCABCentroCosto.sql</FullPath>
+        </FileNode>
+        <FileNode Name="tgCteAC.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
+          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
+          <FullPath>tgCteAC.sql</FullPath>
+        </FileNode>
+        <FileNode Name="tgPersonalABC.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
+          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
+          <FullPath>tgPersonalABC.sql</FullPath>
+        </FileNode>
+        <FileNode Name="xpGenerarCx.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
+          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
+          <FullPath>xpGenerarCx.sql</FullPath>
+        </FileNode>
+        <FileNode Name="xpInvVerificar.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
+          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
+          <FullPath>xpInvVerificar.sql</FullPath>
+        </FileNode>
       </Items>
     </LogicalFolder>
     <LogicalFolder Name="Miscellaneous" Type="3" Sorted="true">
