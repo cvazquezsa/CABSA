@@ -4,7 +4,7 @@
     <LogicalFolder Name="Connections" Type="2" Sorted="true">
       <Items>
         <ConnectionNode Name="CVAZQUEZ:sa">
-          <Created>2018-04-30T22:10:53.9128991-07:00</Created>
+          <Created>2018-05-01T00:10:53.9128991-05:00</Created>
           <Type>SQL</Type>
           <Server>CVAZQUEZ</Server>
           <UserName>sa</UserName>
@@ -16,7 +16,7 @@
           <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
         </ConnectionNode>
         <ConnectionNode Name="erp03.intelisiscloud.com:sqlcabsa">
-          <Created>2018-04-30T22:06:30.2649101-07:00</Created>
+          <Created>2018-05-01T00:06:30.2649101-05:00</Created>
           <Type>SQL</Type>
           <Server>erp03.intelisiscloud.com</Server>
           <UserName>sqlcabsa</UserName>
@@ -49,11 +49,23 @@
           <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
           <FullPath>spECollaboration.sql</FullPath>
         </FileNode>
+        <FileNode Name="spInvFacturaProrrateadaAfectar.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:CVAZQUEZ:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>CVAZQUEZ</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>spInvFacturaProrrateadaAfectar.sql</FullPath>
+        </FileNode>
         <FileNode Name="spRSFlujoEfectivo.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
           <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
           <FullPath>spRSFlujoEfectivo.sql</FullPath>
+        </FileNode>
+        <FileNode Name="SQLQuery1.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
+          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
+          <FullPath>SQLQuery1.sql</FullPath>
         </FileNode>
         <FileNode Name="tgCABCentroCosto.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>

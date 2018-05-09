@@ -78,7 +78,8 @@ AS BEGIN
 	  @OID			int,
 	  @DID			int,
           @TipoArt		varchar(20),
-	  @RenglonTipo		char(1)
+	  @RenglonTipo		char(1),
+		@ImporteD	money
   DECLARE
 	  @TmpProrrateo		table 
           (EmpresaProrrateo	varchar(7), 
@@ -90,8 +91,7 @@ AS BEGIN
 	   VINProrrateo		varchar(20), 
 	   ProyectoProrrateo	varchar(50), 
 	   UENProrrateo		int, 
-	   ActividadProrrateo	varchar(100),
-		 Porcentaje float)
+	   ActividadProrrateo	varchar(100))
 
   SELECT @MovTipo = mt.Clave,
          @SubMovTipo = mt.SubClave,
@@ -127,12 +127,12 @@ AS BEGIN
 
       INSERT INTO @TmpProrrateo
       SELECT vp.EmpresaProrrateo, vp.SucursalProrrateo, vp.CCProrrateo, vp.CC2Prorrateo, vp.CC3Prorrateo, vp.EspacioProrrateo, vp.VINProrrateo, vp.ProyectoProrrateo, 
-							vp.UENProrrateo, vp.ActividadProrrateo, vp.Porcentaje
+							vp.UENProrrateo, vp.ActividadProrrateo
 				FROM VtasProrrateo vp
 					JOIN Venta v ON v.ID = vp.ID
 				WHERE v.ID = @ID
 				GROUP BY  vp.EmpresaProrrateo, vp.SucursalProrrateo, vp.CCProrrateo, vp.CC2Prorrateo, vp.CC3Prorrateo, vp.EspacioProrrateo, vp.VINProrrateo, vp.ProyectoProrrateo, 
-							vp.UENProrrateo, vp.ActividadProrrateo, vp.Porcentaje
+							vp.UENProrrateo, vp.ActividadProrrateo
 			
 			
 			--SELECT a.EmpresaProrrateo, a.SucursalProrrateo, a.CCProrrateo, a.CC2Prorrateo, a.CC3Prorrateo, a.EspacioProrrateo, a.VINProrrateo, a.ProyectoProrrateo, a.UENProrrateo, a.ActividadProrrateo
@@ -143,13 +143,13 @@ AS BEGIN
 
       DECLARE crVenta CURSOR FOR
        SELECT EmpresaProrrateo, SucursalProrrateo, CCProrrateo, CC2Prorrateo, CC3Prorrateo,
-              EspacioProrrateo, VINProrrateo, ProyectoProrrateo, UENProrrateo, ActividadProrrateo, Porcentaje
+              EspacioProrrateo, VINProrrateo, ProyectoProrrateo, UENProrrateo, ActividadProrrateo
          FROM @TmpProrrateo
 
       OPEN crVenta
       FETCH NEXT FROM crVenta INTO 
 						@EmpresaProrrateo,@SucursalProrrateo,@CCProrrateo,@CC2Prorrateo,@CC3Prorrateo,
-						@EspacioProrrateo,@VINProrrateo,@ProyectoProrrateo,@UENProrrateo,@ActividadProrrateo, @Porcentaje
+						@EspacioProrrateo,@VINProrrateo,@ProyectoProrrateo,@UENProrrateo,@ActividadProrrateo
       WHILE @@FETCH_STATUS = 0 AND @Ok IS NULL
       BEGIN
         INSERT INTO Venta(
@@ -162,7 +162,7 @@ AS BEGIN
         SET @NuevoID = SCOPE_IDENTITY()
 
         IF @OK IS NULL
-        INSERT INTO VentaD (
+        /*INSERT INTO VentaD (
 						ID,				Renglon,  RenglonID,  RenglonTipo,	Cantidad,   Almacen,   EnviarA,   Articulo,  Precio,                   PrecioSugerido,   Impuesto1,
 						Impuesto2,   Impuesto3,   Costo,   Contuso,      ContUso2,      ContUso3,      Factor,   FechaRequerida,   Sucursal,           UEN,           
 						Espacio,           PrecioMoneda,   PrecioTipoCambio)
@@ -173,15 +173,15 @@ AS BEGIN
               FROM VentaD v
              WHERE v.ID = @ID
 
-              IF @@ERROR <> 0 SET @Ok = 1	
-				/*BEGIN 
+              IF @@ERROR <> 0 SET @Ok = 1	*/
+				BEGIN 
           SET @Renglon = 2048
           SET @RenglonID = 1
 
-          DECLARE crVentaD CURSOR FOR
-           SELECT a.Art, a.Porcentaje
-            FROM Artprorrateo a
-            JOIN Ventad v ON v.Articulo = a.Art
+				  DECLARE crVentaD CURSOR FOR
+           SELECT a.Articulo, a.Importe
+            FROM VtasProrrateo a
+            JOIN Ventad v ON v.Articulo = a.Articulo AND a.ID = v.ID
            WHERE v.ID = @ID
              AND ISNULL(a.EmpresaProrrateo,'') = ISNULL(@EmpresaProrrateo,'')
              AND ISNULL(a.SucursalProrrateo,'') = ISNULL(@SucursalProrrateo,'')
@@ -193,18 +193,18 @@ AS BEGIN
              AND ISNULL(a.ProyectoProrrateo,'') = ISNULL(@ProyectoProrrateo,'')
              AND ISNULL(a.UENProrrateo,'') = ISNULL(@UENProrrateo,'')
              AND ISNULL(a.ActividadProrrateo,'') = ISNULL(@ActividadProrrateo,'')
-           GROUP BY a.Art, a.Porcentaje
+           GROUP BY a.Articulo, a.Importe
 
           OPEN crVentaD
-          FETCH NEXT FROM crVentaD INTO @Articulo, @Porcentaje
+          FETCH NEXT FROM crVentaD INTO @Articulo, @ImporteD
           WHILE @@FETCH_STATUS = 0 AND @Ok IS NULL
           BEGIN
             SELECT @TipoArt = Tipo FROM Art WHERE Articulo = @Articulo
 
             EXEC spRenglonTipo @TipoArt, NULL, @RenglonTipo OUTPUT
-
+					
             INSERT INTO VentaD (ID,       Renglon,  RenglonID,  RenglonTipo, Cantidad,   Almacen,   EnviarA,   Articulo,  Precio,                    PrecioSugerido,   Impuesto1,   Impuesto2,   Impuesto3,   Costo,   Contuso,      ContUso2,      ContUso3,      Factor,   FechaRequerida,   Sucursal,           UEN,           Espacio,           PrecioMoneda,   PrecioTipoCambio)
-                         SELECT @NuevoID, @Renglon, @RenglonID, @RenglonTipo, v.Cantidad, v.Almacen, v.EnviarA, @Articulo, v.Precio*@Porcentaje/100, v.PrecioSugerido, v.Impuesto1, v.Impuesto2, v.Impuesto3, v.Costo, @CCProrrateo, @CC2Prorrateo, @CC2Prorrateo, v.Factor, v.FechaRequerida, @SucursalProrrateo, @UENProrrateo, @EspacioProrrateo, v.PrecioMoneda, v.PrecioTipoCambio           
+                         SELECT @NuevoID, @Renglon, @RenglonID, @RenglonTipo, v.Cantidad, v.Almacen, v.EnviarA, @Articulo, @ImporteD, v.PrecioSugerido, v.Impuesto1, v.Impuesto2, v.Impuesto3, v.Costo, @CCProrrateo, @CC2Prorrateo, @CC2Prorrateo, v.Factor, v.FechaRequerida, @SucursalProrrateo, @UENProrrateo, @EspacioProrrateo, v.PrecioMoneda, v.PrecioTipoCambio           
               FROM VentaD v
              WHERE v.ID = @ID
                AND v.Articulo = @Articulo
@@ -213,11 +213,11 @@ AS BEGIN
               SET @Renglon = @Renglon + 2048
               SET @RenglonID = @RenglonID + 1
 
-              FETCH NEXT FROM crVentaD INTO @Articulo, @Porcentaje
+              FETCH NEXT FROM crVentaD INTO @Articulo, @ImporteD
           END
           CLOSE crVentaD
           DEALLOCATE crVentaD
-        END*/
+        END
         IF @OK IS NULL
         BEGIN
           SELECT @Importe = sum((Precio * Cantidad * Factor)* (1 - (ISNULL(DescuentoLinea,0.0)/100))),
@@ -250,7 +250,7 @@ AS BEGIN
 
         FETCH NEXT FROM crVenta INTO 
 					@EmpresaProrrateo, @SucursalProrrateo, @CCProrrateo, @CC2Prorrateo, @CC3Prorrateo, @EspacioProrrateo, @VINProrrateo, 
-					@ProyectoProrrateo, @UENProrrateo, @ActividadProrrateo, @Porcentaje
+					@ProyectoProrrateo, @UENProrrateo, @ActividadProrrateo
       END
       CLOSE crVenta
       DEALLOCATE crVenta
@@ -280,3 +280,54 @@ AS BEGIN
   END
 END
 GO
+BEGIN TRANSACTION
+	DECLARE @Ok int, @OkRef varchar(255)
+	EXEC spAfectar 'VTAS','2433', 'AFECTAR','Todo',NULL,'INTELISIS',0,0,@OK OUTPUT, @OkRef OUTPUT
+	SELECT * FROM Venta ORDER BY ID DESC
+	IF @@TRANCOUNT > 0
+		ROLLBACK
+/**************** fnValidarVtasProrrateo ****************/
+IF EXISTS (SELECT * FROM SysObjects WHERE name = 'fnValidarVtasProrrateo' AND type='TF')
+	DROP FUNCTION fnValidarVtasProrrateo
+GO
+CREATE FUNCTION fnValidarVtasProrrateo (@ID	int)
+RETURNS @Validación TABLE (
+	Ok	int,
+	OkRef	varchar(255)
+	)
+AS
+BEGIN
+	DECLARE
+		@ImporteArtVentaD money,
+		@ImporteArtTabla money,
+		@Articulo varchar(20),
+		@Ok	int,
+		@OkRef	varchar(255)
+
+	DECLARE crValidar CURSOR FAST_FORWARD FOR
+		SELECT DISTINCT Articulo FROM VentaD WHERe ID = @ID
+
+	OPEN crValidar
+	FETCH NEXT FROM crValidar INTO
+		@Articulo
+	WHILE @@FETCH_STATUS = 0
+	BEGIN
+		SELECT @ImporteArtVentaD = SUM(Precio * Cantidad) FROM VentaD WHERE ID = @ID AND Articulo = @Articulo
+		SELECT @ImporteArtTabla = SUM(Importe) FROM VtasProrrateo WHERE ID = @ID AND Articulo = @Articulo
+
+		IF @ImporteArtVentaD <> @ImporteArtTabla
+			SELECT @Ok=0, @OkRef = CONCAT('Los importes capturados no son coherentes: ',@Articulo)
+		IF @Ok = 0
+			BREAK
+		FETCH NEXT FROM crValidar INTO
+			@Articulo
+	END
+	IF @Ok IS NULL
+		SELECT @Ok = 1
+	CLOSE crValidar
+	DEALLOCATE crValidar
+	INSERT INTO @Validación SELECT @Ok, @OkRef
+	RETURN
+END
+GO
+--SELECT Ok, OkRef FROM fnValidarVtasProrrateo(2433)
