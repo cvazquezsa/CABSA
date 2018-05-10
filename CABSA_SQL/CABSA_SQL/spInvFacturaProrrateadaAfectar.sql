@@ -141,7 +141,7 @@ AS BEGIN
       -- WHERE v.ID = @ID
       -- GROUP BY a.EmpresaProrrateo, a.SucursalProrrateo, a.CCProrrateo, a.CC2Prorrateo, a.CC3Prorrateo, a.EspacioProrrateo, a.VINProrrateo, a.ProyectoProrrateo, a.UENProrrateo, a.ActividadProrrateo
 
-      DECLARE crVenta CURSOR FOR
+			DECLARE crVenta CURSOR FOR
        SELECT EmpresaProrrateo, SucursalProrrateo, CCProrrateo, CC2Prorrateo, CC3Prorrateo,
               EspacioProrrateo, VINProrrateo, ProyectoProrrateo, UENProrrateo, ActividadProrrateo
          FROM @TmpProrrateo
@@ -280,12 +280,12 @@ AS BEGIN
   END
 END
 GO
-BEGIN TRANSACTION
-	DECLARE @Ok int, @OkRef varchar(255)
-	EXEC spAfectar 'VTAS','2433', 'AFECTAR','Todo',NULL,'INTELISIS',0,0,@OK OUTPUT, @OkRef OUTPUT
-	SELECT * FROM Venta ORDER BY ID DESC
-	IF @@TRANCOUNT > 0
-		ROLLBACK
+--BEGIN TRANSACTION
+--	DECLARE @Ok int, @OkRef varchar(255)
+--	EXEC spAfectar 'VTAS','2462', 'AFECTAR','Todo',NULL,'INTELISIS',0,0,@OK OUTPUT, @OkRef OUTPUT
+--	SELECT * FROM Venta ORDER BY ID DESC
+--	IF @@TRANCOUNT > 0
+--		ROLLBACK
 /**************** fnValidarVtasProrrateo ****************/
 IF EXISTS (SELECT * FROM SysObjects WHERE name = 'fnValidarVtasProrrateo' AND type='TF')
 	DROP FUNCTION fnValidarVtasProrrateo
