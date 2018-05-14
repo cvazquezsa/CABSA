@@ -61,12 +61,6 @@
           <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
           <FullPath>spRSFlujoEfectivo.sql</FullPath>
         </FileNode>
-        <FileNode Name="SQLQuery1.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
-          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
-          <FullPath>SQLQuery1.sql</FullPath>
-        </FileNode>
         <FileNode Name="tgCABCentroCosto.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
@@ -84,6 +78,18 @@
           <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
           <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
           <FullPath>tgPersonalABC.sql</FullPath>
+        </FileNode>
+        <FileNode Name="trCVSCentroCostos.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
+          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
+          <FullPath>trCVSCentroCostos.sql</FullPath>
+        </FileNode>
+        <FileNode Name="trCVSCta.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
+          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
+          <FullPath>trCVSCta.sql</FullPath>
         </FileNode>
         <FileNode Name="xpGenerarCx.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>

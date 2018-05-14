@@ -173,7 +173,7 @@ AS BEGIN
   FROM
     CtaDinero c 
 	LEFT OUTER JOIN Auxiliar a ON a.Empresa = ISNULL(@Empresa,a.Empresa) AND a.Sucursal=ISNULL(@Sucursal,a.Sucursal) AND a.Rama = 'DIN' AND c.CtaDinero = a.Cuenta 
-	                             --AND a.Fecha < @FechaD AND a.Mov = ISNULL(@InfoMov,a.Mov) --BUG2911
+	                             AND a.Fecha < @FechaD AND a.Mov = ISNULL(@InfoMov,a.Mov) --BUG2911
 								 AND a.Moneda = ISNULL(@Moneda,a.Moneda)
 	LEFT OUTER JOIN Dinero d ON d.ID = a.ModuloID AND d.Empresa=a.Empresa AND d.Sucursal=a.Sucursal
  WHERE c.CtaDinero BETWEEN @CtaDineroD AND @CtaDineroA
@@ -182,7 +182,7 @@ AS BEGIN
  GROUP BY RTRIM(c.CtaDinero), RTRIM(c.NumeroCta), RTRIM(c.Descripcion), c.Moneda
 
   DELETE FROM @Datos WHERE ISNULL(Cargos,0.0) = 0.0 AND ISNULL(Abonos,0.0) = 0.0
-
+	 --SELECT * FROM @Datos
   -- Movimientos Actuales
   INSERT @Datos (Estacion, CtaDinero, NumeroCta, Descripcion, Tipo, Uso, Moneda, TipoCambio, Beneficiario, Fecha, Movimiento, Cargos, Abonos, Saldo, CargosMC, AbonosMC, SaldoMC, EsCancelacion, Grafica, Titulo, GraficaArgumento, ContMoneda, FiltroEmpresa, 
 FiltroCtaDineroD, FiltroCtaDineroA, FiltroFechaD, FiltroFechaA, FiltroUso, FiltroMov, FiltroNivel, FiltroMoneda, FiltroGraficarTipo, FiltroGraficarCantidad)
@@ -228,11 +228,14 @@ FiltroCtaDineroD, FiltroCtaDineroA, FiltroFechaD, FiltroFechaA, FiltroUso, Filtr
  WHERE a.Empresa = @Empresa
    AND a.Cuenta BETWEEN @CtaDineroD AND @CtaDineroA
 	 AND ISNULL(c.Categoria,'') = ISNULL(@CategoriaCta,'')
-   --AND a.Fecha BETWEEN @FechaD AND @FechaA --BUG2911
+   AND a.Fecha BETWEEN @FechaD AND @FechaA --BUG2911
    AND ISNULL(c.Uso,'') = ISNULL(@InfoUso,ISNULL(c.Uso,''))
    --AND a.Mov = ISNULL(@InfoMov,a.Mov) 
    AND a.Moneda = ISNULL(@Moneda,a.Moneda)   
 
+	 --SELECT 1, ID, Moneda, CtaDinero, Fecha, ISNULL(Cargos,0.0), ISNULL(Abonos,0.0), ISNULL(CargosMC,0.0), ISNULL(AbonosMC,0.0)  
+  --   FROM @Datos
+  --  ORDER BY CtaDinero, Moneda, Fecha
 
   SELECT @MonedaInicial = '', @CuentaInicial = '', @Saldo = 0.0, @SaldoMC = 0.0
   DECLARE crDineroAux CURSOR FOR
@@ -266,7 +269,7 @@ FiltroCtaDineroD, FiltroCtaDineroA, FiltroFechaD, FiltroFechaA, FiltroUso, Filtr
   CLOSE crDineroAux
   DEALLOCATE crDineroAux
    
-  -- SELECT 'DIN', 'Cuentas de Dinero', d.CtaDinero, cd.SaldoInicial, d.NumeroCta, d.CtaDinero+' - '+d.Descripcion, NULL, NULL, NULL, NULL, NULL, NULL, NULL, SUM(d.Cargos) AS Cargos, SUM(d.Abonos) AS Abonos, SUM(d.Saldo)- CASE WHEN cd.Tipo='Caja' THEN ISNULL(cd.FondoFijo,0) ELSE ISNULL(cd.SaldoInicial,0) END AS Saldo, d.Moneda
+  -- SELECT 'DIN', 'Cuentas de Dinero', d.CtaDinero, cd.SaldoInicial, d.NumeroCta, d.CtaDinero+' - '+d.Descripcion, NULL, NULL, NULL, NULL, NULL, NULL, NULL, SUM(d.Cargos) AS Cargos, SUM(d.Abonos) AS Abonos, ISNULL(cd.SaldoInicial,0) + SUM(d.Cargos)-SUM(d.Abonos),SUM(d.Saldo)- CASE WHEN cd.Tipo='Caja' THEN ISNULL(cd.FondoFijo,0) ELSE ISNULL(cd.SaldoInicial,0) END AS Saldo, d.Moneda
   --FROM @Datos d, CtaDinero cd
   --WHERE cd.CtaDinero=d.CtaDinero
   --GROUP BY d.CtaDinero, d.NumeroCta, d.Descripcion, d.Moneda, cd.Tipo, cd.FondoFijo, cd.SaldoInicial
@@ -274,7 +277,7 @@ FiltroCtaDineroD, FiltroCtaDineroA, FiltroFechaD, FiltroFechaA, FiltroUso, Filtr
  INSERT INTO @DatosDin ( Modulo, ModuloNombre, CtaDinero, NumeroCta, CtaDineroDescripcion, ClienteProveedor, Nombre, Mov, MovID, FechaEmision, FechaVencimiento, Importe, Cargos, Abonos, Saldo, TotalClienteProveedor, Moneda, ProveedorCat, ConceptoFE)
  --DINERO
  SELECT 'DIN', 'Cuentas de Dinero', d.CtaDinero, d.NumeroCta, d.CtaDinero+' - '+d.Descripcion, NULL, NULL, NULL, NULL, NULL, NULL, NULL, SUM(d.Cargos) AS Cargos, SUM(d.Abonos) AS Abonos, 
-	SUM(d.Saldo)- CASE WHEN cd.Tipo='Caja' THEN ISNULL(cd.FondoFijo,0) ELSE ISNULL(cd.SaldoInicial,0) END AS Saldo, NULL, d.Moneda,null,null --BUG2404 Preconfig
+	/*SUM(d.Saldo)- CASE WHEN cd.Tipo='Caja' THEN ISNULL(cd.FondoFijo,0) ELSE ISNULL(cd.SaldoInicial,0) END*/ISNULL(cd.SaldoInicial,0) + SUM(d.Cargos)-SUM(d.Abonos) AS Saldo, NULL, d.Moneda,null,null --BUG2404 Preconfig
   FROM @Datos d, CtaDinero cd
   WHERE cd.CtaDinero=d.CtaDinero
   GROUP BY d.CtaDinero, d.NumeroCta, d.Descripcion, d.Moneda, cd.Tipo, cd.FondoFijo, cd.SaldoInicial
@@ -340,4 +343,5 @@ FiltroCtaDineroD, FiltroCtaDineroA, FiltroFechaD, FiltroFechaA, FiltroUso, Filtr
  	  
   SELECT * FROM @DatosDin ORDER BY Modulo DESC, ClienteProveedor, FechaEmision ASC
 END
-
+GO
+EXEC spRSFlujoEfectivo  'CABSA', 0, '1002023','SCOTIA9982','Pesos','20180501','20180530','Operación'
