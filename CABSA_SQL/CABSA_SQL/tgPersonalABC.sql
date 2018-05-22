@@ -57,7 +57,8 @@ AS BEGIN
     IF @Registro  IS NOT NULL
     BEGIN
 			--SELECT * FROM RFCValidos
-      SELECT @PersonalDup = MIN(Personal) 
+      
+			SELECT @PersonalDup = MIN(Personal) 
 				FROM Personal 
 					WHERE Registro  = @Registro  AND Personal <> @PersonalI 
 						AND NOT @Registro IN (SELECT Valor FROM RFCValidos WHERE Tipo = 'CURP')
@@ -66,13 +67,14 @@ AS BEGIN
     IF @Registro2 IS NOT NULL 
     BEGIN
       SELECT @PersonalDup = MIN(Personal) FROM Personal WHERE Registro2 = @Registro2 AND Personal <> @PersonalI
-				AND NOT @Registro IN (SELECT Valor FROM RFCValidos WHERE Tipo = 'RFC') 
+				AND NOT @Registro2 IN (SELECT Valor FROM RFCValidos WHERE Tipo = 'RFC') 
       IF @PersonalDup IS NOT NULL SELECT @RegistroDup = 'RFC - '+@Registro2
-    END
+			--SELECT @PersonalDup
+		END
     IF @Registro3 IS NOT NULL 
     BEGIN
       SELECT @PersonalDup = MIN(Personal) FROM Personal WHERE Registro3 = @Registro3 AND Personal <> @PersonalI
-				AND NOT @Registro IN (SELECT Valor FROM RFCValidos WHERE Tipo = 'IMSS') 
+				AND NOT @Registro3 IN (SELECT Valor FROM RFCValidos WHERE Tipo = 'IMSS') 
       IF @PersonalDup IS NOT NULL SELECT @RegistroDup = 'IMSS - '+@Registro3
     END
 

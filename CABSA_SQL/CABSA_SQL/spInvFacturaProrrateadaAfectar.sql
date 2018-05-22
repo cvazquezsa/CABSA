@@ -153,8 +153,14 @@ AS BEGIN
       WHILE @@FETCH_STATUS = 0 AND @Ok IS NULL
       BEGIN
         INSERT INTO Venta(
-               Empresa,                           Mov,       FechaEmision, UltimoCambio, Proyecto,                            Actividad,                             UEN,                       Moneda, TipoCambio, Usuario, Estatus,      Directo, Prioridad, RenglonID, Codigo, Cliente, EnviarA, Almacen, FechaRequerida, Vencimiento, Sucursal,                   ContUso,                      ContUso2,                       ContUso3,                       Espacio)
-        SELECT isnull(@EmpresaProrrateo,Empresa), @MovNuevo, FechaEmision, UltimoCambio, isnull(@ProyectoProrrateo,Proyecto), isnull(@ActividadProrrateo,Actividad), isnull(@UENProrrateo,UEN), Moneda, TipoCambio, Usuario, 'SINAFECTAR', Directo, Prioridad, RenglonID, Codigo, Cliente, EnviarA, Almacen, FechaRequerida, Vencimiento, isnull(@Sucursal,Sucursal), isnull(@CCProrrateo,ContUso), isnull(@CC2Prorrateo,ContUso2), isnull(@CC3Prorrateo,ContUso3), isnull(@EspacioProrrateo,Espacio)
+               Empresa,                           Mov,       FechaEmision, UltimoCambio, Proyecto,                            Actividad,                             
+							 UEN,                       Moneda, TipoCambio, Usuario, Estatus,      Directo, Prioridad, RenglonID, Codigo, Cliente, EnviarA, Almacen, 
+							 FechaRequerida, Vencimiento, Sucursal,                   ContUso,                      ContUso2,                       ContUso3,                       
+							 Espacio,														Concepto,	Referencia,	Observaciones)
+        SELECT isnull(@EmpresaProrrateo,Empresa), @MovNuevo, FechaEmision, UltimoCambio, isnull(@ProyectoProrrateo,Proyecto), isnull(@ActividadProrrateo,Actividad), 
+							 isnull(@UENProrrateo,UEN), Moneda, TipoCambio, Usuario, 'SINAFECTAR', Directo, Prioridad, RenglonID, Codigo, Cliente, EnviarA, Almacen, 
+							 FechaRequerida, Vencimiento, isnull(@Sucursal,Sucursal), isnull(@CCProrrateo,ContUso), isnull(@CC2Prorrateo,ContUso2), isnull(@CC3Prorrateo,ContUso3), 
+							 isnull(@EspacioProrrateo,Espacio),	Concepto,	Referencia,	LEFT(CONCAT(Mov,' ',MovID, ' / ',Observaciones),100)
           FROM Venta 
          WHERE ID = @ID
         IF @@ERROR <> 0 SET @OK = 1
@@ -257,35 +263,48 @@ AS BEGIN
     END  ELSE
     IF @Accion = 'CANCELAR'  AND @Estatus = 'CONCLUIDO' AND @OK IS NULL
     BEGIN--11
-      DECLARE crCancelarVenta CURSOR FOR
+			DECLARE @i int
+			SELECT @i=COUNT(*)
+        FROM MovFlujo
+       WHERE OID = @ID AND DModulo = @Modulo
+      --SELECT @i
+			DECLARE crCancelarVentapr CURSOR FOR
       SELECT OModulo, OMov, OMovID, DModulo, DID, DMov, DMovID
         FROM MovFlujo
        WHERE OID = @ID AND DModulo = @Modulo
-      OPEN crCancelarVenta
-      FETCH NEXT FROM crCancelarVenta INTO @OModulo, @OMov, @OMovID, @DModulo, @DID, @DMov, @DMovID
-      WHILE @@FETCH_STATUS = 0 AND @Ok IS NULL
+      
+			OPEN crCancelarVentapr
+      FETCH NEXT FROM crCancelarVentapr INTO @OModulo, @OMov, @OMovID, @DModulo, @DID, @DMov, @DMovID
+      WHILE (@@FETCH_STATUS = 0) AND (@Ok IS NULL) AND @i>0
       BEGIN--12
-        EXEC spAfectar @Modulo, @DID, @Accion,'TODO', NULL ,@Usuario, NULL, 1, @Ok OUTPUT, @OkRef OUTPUT, @Conexion = 1
-          IF @@ERROR <> 0 SET @OK = 1
+        
+				EXEC spAfectar @Modulo, @DID, @Accion,'TODO', NULL ,@Usuario, NULL, 1, @Ok OUTPUT, @OkRef OUTPUT, @Conexion = 1
+          --SELECT @ID,@DID, @OK
+					--IF @@ERROR <> 0 SET @OK = 1
           IF @OK IS NULL
           BEGIN
             EXEC spMovFlujo @Sucursal, @Accion, @Empresa, @DModulo, @DID, @DMov, @DMovID, @OModulo, @ID, @OMov, @OMovID, @Ok OUTPUT
-            IF @@ERROR <> 0 SET @OK = 1
+            --IF @@ERROR <> 0 SET @OK = 1
           END
-	FETCH NEXT FROM crCancelarVenta INTO @OModulo, @OMov, @OMovID, @DModulo, @DID, @DMov, @DMovID
-      END
-      CLOSE crCancelarVenta
-      DEALLOCATE crCancelarVenta
+				FETCH NEXT FROM crCancelarVentapr INTO @OModulo, @OMov, @OMovID, @DModulo, @DID, @DMov, @DMovID
+				SELECT @i = @i -1
+				--SELECT @@FETCH_STATUS, @DID, @i
+			END
+      CLOSE crCancelarVentapr
+      DEALLOCATE crCancelarVentapr
     END
   END
 END
 GO
 --BEGIN TRANSACTION
---	DECLARE @Ok int, @OkRef varchar(255)
---	EXEC spAfectar 'VTAS','2462', 'AFECTAR','Todo',NULL,'INTELISIS',0,0,@OK OUTPUT, @OkRef OUTPUT
---	SELECT * FROM Venta ORDER BY ID DESC
---	IF @@TRANCOUNT > 0
---		ROLLBACK
+--DECLARE @Ok int, @OkRef varchar(255)
+--EXEC spAfectar 'VTAS',2442, 'CANCELAR', 'Todo',NULL,'INTELISIS',0,0,@Ok OUTPUT, @OkRef OUTPUT
+----SELECT @@TRANCOUNT
+--IF @@TRANCOUNT > 0
+--BEGIN
+--	--SELECT 1
+--	ROLLBACK
+--END
 /**************** fnValidarVtasProrrateo ****************/
 IF EXISTS (SELECT * FROM SysObjects WHERE name = 'fnValidarVtasProrrateo' AND type='TF')
 	DROP FUNCTION fnValidarVtasProrrateo

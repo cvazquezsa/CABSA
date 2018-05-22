@@ -61,92 +61,93 @@ AS BEGIN
       ELSE BEGIN
         SELECT @MovDestino = NULL
         SELECT @MovDestino = NULLIF(RTRIM(MovDestino), '') FROM CfgECollaborationMov WHERE Modulo = @Modulo AND Mov = @Mov
-        IF @MovDestino IS NULL 
-        BEGIN 
-          SELECT @Ok = 10033
-          RETURN 
-        END
+        IF NOT @MovDestino IS NULL 
+        BEGIN--movDestino 
+          --SELECT @Ok = 10033
+          --RETURN 
+        --END
 
-        SELECT @MovEmpresa = @Contacto, @MovCliente = @Empresa
-        SELECT @MovAlmacen = m.Almacen,
-               @MovEnviarA = c.EnviarA, 
-               @MovAgente  = c.Agente
-          FROM Compra m
-          JOIN Cte c ON c.Cliente = @Empresa
-         WHERE m.ID = @ID
+					SELECT @MovEmpresa = @Contacto, @MovCliente = @Empresa
+					SELECT @MovAlmacen = m.Almacen,
+								 @MovEnviarA = c.EnviarA, 
+								 @MovAgente  = c.Agente
+						FROM Compra m
+						JOIN Cte c ON c.Cliente = @Empresa
+					 WHERE m.ID = @ID
 
-        EXEC xpECollaborationGenerarPedido @Empresa, @Sucursal, @Modulo, @ID, @Estatus, @EstatusNuevo, @Usuario, @FechaEmision, @FechaRegistro, @Mov, @MovID, @MovTipo, @Ok OUTPUT, @OkRef OUTPUT,
-					   @MovEmpresa OUTPUT, @MovAlmacen OUTPUT, @MovCliente OUTPUT, @MovEnviarA OUTPUT, @MovAgente OUTPUT, @MovReferencia OUTPUT
+					EXEC xpECollaborationGenerarPedido @Empresa, @Sucursal, @Modulo, @ID, @Estatus, @EstatusNuevo, @Usuario, @FechaEmision, @FechaRegistro, @Mov, @MovID, @MovTipo, @Ok OUTPUT, @OkRef OUTPUT,
+							 @MovEmpresa OUTPUT, @MovAlmacen OUTPUT, @MovCliente OUTPUT, @MovEnviarA OUTPUT, @MovAgente OUTPUT, @MovReferencia OUTPUT
 
-        SELECT @AlmSucursal = Sucursal FROM Alm WHERE UPPER(Almacen) = UPPER(@MovAlmacen)
-        INSERT Venta (
-               Sucursal,     SucursalDestino, OrigenTipo, Origen, OrigenID,  Estatus,   CompraID, Usuario,  Mov,         Concepto, Empresa,     FechaEmision,  Referencia,     OrdenCompra,    FechaOrdenCompra, FechaRequerida, Cliente,     EnviarA,     Agente,     Almacen,     Moneda, TipoCambio, ListaPreciosEsp, Condicion, Vencimiento, Descuento, DescuentoGlobal, Proyecto, UEN, FormaEnvio)
-        SELECT @AlmSucursal, @AlmSucursal,    'E/COLLAB', Mov,    MovID,   'CONFIRMAR', @ID,      @Usuario, @MovDestino, Concepto, @MovEmpresa, @FechaEmision, @MovReferencia, @MovReferencia, @FechaEmision,    FechaRequerida, @MovCliente, @MovEnviarA, @MovAgente, @MovAlmacen, Moneda, TipoCambio, ListaPreciosEsp, Condicion, Vencimiento, Descuento, DescuentoGlobal, Proyecto, UEN, FormaEnvio
-          FROM Compra m
-         WHERE m.ID = @ID
+					SELECT @AlmSucursal = Sucursal FROM Alm WHERE UPPER(Almacen) = UPPER(@MovAlmacen)
+					INSERT Venta (
+								 Sucursal,     SucursalDestino, OrigenTipo, Origen, OrigenID,  Estatus,   CompraID, Usuario,  Mov,         Concepto, Empresa,     FechaEmision,  Referencia,     OrdenCompra,    FechaOrdenCompra, FechaRequerida, Cliente,     EnviarA,     Agente,     Almacen,     Moneda, TipoCambio, ListaPreciosEsp, Condicion, Vencimiento, Descuento, DescuentoGlobal, Proyecto, UEN, FormaEnvio)
+					SELECT @AlmSucursal, @AlmSucursal,    'E/COLLAB', Mov,    MovID,   'CONFIRMAR', @ID,      @Usuario, @MovDestino, Concepto, @MovEmpresa, @FechaEmision, @MovReferencia, @MovReferencia, @FechaEmision,    FechaRequerida, @MovCliente, @MovEnviarA, @MovAgente, @MovAlmacen, Moneda, TipoCambio, ListaPreciosEsp, Condicion, Vencimiento, Descuento, DescuentoGlobal, Proyecto, UEN, FormaEnvio
+						FROM Compra m
+					 WHERE m.ID = @ID
 
-        SELECT @VentaID = SCOPE_IDENTITY() 
-        INSERT VentaD (
-               Sucursal,     ID,       Renglon,  RenglonID,  RenglonTipo,  Codigo, Articulo,  SubCuenta,  Cantidad,  CantidadInventario,  Factor, Unidad,  Paquete, Costo, Precio,  DescuentoTipo, DescuentoLinea, DescuentoImporte, Impuesto1,  Impuesto2,  Impuesto3,  Almacen,     FechaRequerida, DescripcionExtra, ContUso)
-        SELECT @AlmSucursal, @VentaID, Renglon,  RenglonID,  RenglonTipo,  Codigo, Articulo,  SubCuenta,  Cantidad,  CantidadInventario,  Factor, Unidad,  Paquete, Costo, Costo,   DescuentoTipo, DescuentoLinea, DescuentoImporte, Impuesto1,  Impuesto2,  Impuesto3,  @MovAlmacen, FechaRequerida, DescripcionExtra, ContUso
-          FROM CompraD
-         WHERE ID = @ID
+					SELECT @VentaID = SCOPE_IDENTITY() 
+					INSERT VentaD (
+								 Sucursal,     ID,       Renglon,  RenglonID,  RenglonTipo,  Codigo, Articulo,  SubCuenta,  Cantidad,  CantidadInventario,  Factor, Unidad,  Paquete, Costo, Precio,  DescuentoTipo, DescuentoLinea, DescuentoImporte, Impuesto1,  Impuesto2,  Impuesto3,  Almacen,     FechaRequerida, DescripcionExtra, ContUso)
+					SELECT @AlmSucursal, @VentaID, Renglon,  RenglonID,  RenglonTipo,  Codigo, Articulo,  SubCuenta,  Cantidad,  CantidadInventario,  Factor, Unidad,  Paquete, Costo, Costo,   DescuentoTipo, DescuentoLinea, DescuentoImporte, Impuesto1,  Impuesto2,  Impuesto3,  @MovAlmacen, FechaRequerida, DescripcionExtra, ContUso
+						FROM CompraD
+					 WHERE ID = @ID
        
-        IF (SELECT VentaPreciosImpuestoIncluido FROM EmpresaCfg WHERE Empresa = @Contacto) = 1
-          UPDATE VentaD 
-             SET Precio = Precio * (1.0+(((100.0+ISNULL(Impuesto2, 0.0))*(1+((ISNULL(Impuesto1, 0.0)+ISNULL(Impuesto3, 0.0))/100.0))-100.0)/100.0))
-           WHERE ID = @VentaID
+					IF (SELECT VentaPreciosImpuestoIncluido FROM EmpresaCfg WHERE Empresa = @Contacto) = 1
+						UPDATE VentaD 
+							 SET Precio = Precio * (1.0+(((100.0+ISNULL(Impuesto2, 0.0))*(1+((ISNULL(Impuesto1, 0.0)+ISNULL(Impuesto3, 0.0))/100.0))-100.0)/100.0))
+						 WHERE ID = @VentaID
 
-        INSERT SerieLoteMov (
-               Sucursal,     Empresa,   Modulo, ID,       RenglonID, Articulo, SubCuenta, SerieLote, Cantidad)
-        SELECT @AlmSucursal, @Contacto, 'VTAS', @VentaID, RenglonID, Articulo, SubCuenta, SerieLote, Cantidad
-          FROM SerieLoteMov
-         WHERE Modulo = 'COMS' AND ID = @ID
+					INSERT SerieLoteMov (
+								 Sucursal,     Empresa,   Modulo, ID,       RenglonID, Articulo, SubCuenta, SerieLote, Cantidad)
+					SELECT @AlmSucursal, @Contacto, 'VTAS', @VentaID, RenglonID, Articulo, SubCuenta, SerieLote, Cantidad
+						FROM SerieLoteMov
+					 WHERE Modulo = 'COMS' AND ID = @ID
 
-        IF (SELECT eCollaboration2Capas FROM EmpresaGral WHERE Empresa = @Empresa) = 1 AND @MovTipo <> 'COMS.D'
-        BEGIN
-          DECLARE crProv CURSOR FOR
-           SELECT DISTINCT NULLIF(RTRIM(ProveedorArt), '')
-             FROM CompraD
-            WHERE ID = @ID
-          OPEN crProv
-          FETCH NEXT FROM crProv INTO @Proveedor
-          WHILE @@FETCH_STATUS <> -1 AND @@Error = 0 
-          BEGIN
-            IF @@FETCH_STATUS <> -2 
-            BEGIN
-              IF @Proveedor IS NULL 
-                SELECT @Ok = 10450, @OkRef = MIN(Articulo) FROM CompraD WHERE ID = @ID AND NULLIF(RTRIM(ProveedorArt), '') IS NULL
+					IF (SELECT eCollaboration2Capas FROM EmpresaGral WHERE Empresa = @Empresa) = 1 AND @MovTipo <> 'COMS.D'
+					BEGIN--2capas
+						DECLARE crProv CURSOR FOR
+						 SELECT DISTINCT NULLIF(RTRIM(ProveedorArt), '')
+							 FROM CompraD
+							WHERE ID = @ID
+						OPEN crProv
+						FETCH NEXT FROM crProv INTO @Proveedor
+						WHILE @@FETCH_STATUS <> -1 AND @@Error = 0 
+						BEGIN--cursor
+							IF @@FETCH_STATUS <> -2 
+							BEGIN
+								IF @Proveedor IS NULL 
+									SELECT @Ok = 10450, @OkRef = MIN(Articulo) FROM CompraD WHERE ID = @ID AND NULLIF(RTRIM(ProveedorArt), '') IS NULL
               
-              INSERT Compra (
-                     Sucursal,  OrigenTipo, Origen, OrigenID, Estatus,     Usuario,  Mov,  Concepto,   Empresa,   FechaEmision,  Referencia,     FechaRequerida, Proveedor,  Almacen,   Moneda,   TipoCambio,   ListaPreciosEsp,   Condicion,   Descuento,   DescuentoGlobal, Proyecto,   UEN,   FormaEnvio)
-              SELECT @Sucursal, 'E/COLLAB', m.Mov,  m.MovID,  'CONFIRMAR', @Usuario, @Mov, m.Concepto, @Contacto, @FechaEmision, @MovReferencia, FechaRequerida, @Proveedor, m.Almacen, m.Moneda, m.TipoCambio, p.ListaPreciosEsp, p.Condicion, p.Descuento, d.Porcentaje,    m.Proyecto, m.UEN, p.FormaEnvio
-                FROM Compra m
-                JOIN Prov p ON p.Proveedor = @Proveedor
-                LEFT OUTER JOIN Descuento d ON d.Descuento = p.Descuento
-               WHERE m.ID = @ID
-              SELECT @CompraID = SCOPE_IDENTITY() 
-              INSERT CompraD (
-                     Sucursal,  ID,        Renglon,   RenglonID,   RenglonTipo,   Codigo,   Articulo,   SubCuenta,   Cantidad,   CantidadInventario,   Factor,   Unidad,   Paquete,   Costo,                            Impuesto1,   Impuesto2,   Impuesto3,   Almacen,   FechaRequerida,   DescripcionExtra,   ContUso)
-              SELECT @Sucursal, @CompraID, d.Renglon, d.RenglonID, d.RenglonTipo, d.Codigo, d.Articulo, d.SubCuenta, d.Cantidad, d.CantidadInventario, d.Factor, d.Unidad, d.Paquete, NULLIF(d.ProveedorArtCosto, 0.0), d.Impuesto1, d.Impuesto2, d.Impuesto3, d.Almacen, d.FechaRequerida, d.DescripcionExtra, d.ContUso
-                FROM CompraD d
-               WHERE d.ID = @ID AND d.ProveedorArt = @Proveedor
+								INSERT Compra (
+											 Sucursal,  OrigenTipo, Origen, OrigenID, Estatus,     Usuario,  Mov,  Concepto,   Empresa,   FechaEmision,  Referencia,     FechaRequerida, Proveedor,  Almacen,   Moneda,   TipoCambio,   ListaPreciosEsp,   Condicion,   Descuento,   DescuentoGlobal, Proyecto,   UEN,   FormaEnvio)
+								SELECT @Sucursal, 'E/COLLAB', m.Mov,  m.MovID,  'CONFIRMAR', @Usuario, @Mov, m.Concepto, @Contacto, @FechaEmision, @MovReferencia, FechaRequerida, @Proveedor, m.Almacen, m.Moneda, m.TipoCambio, p.ListaPreciosEsp, p.Condicion, p.Descuento, d.Porcentaje,    m.Proyecto, m.UEN, p.FormaEnvio
+									FROM Compra m
+									JOIN Prov p ON p.Proveedor = @Proveedor
+									LEFT OUTER JOIN Descuento d ON d.Descuento = p.Descuento
+								 WHERE m.ID = @ID
+								SELECT @CompraID = SCOPE_IDENTITY() 
+								INSERT CompraD (
+											 Sucursal,  ID,        Renglon,   RenglonID,   RenglonTipo,   Codigo,   Articulo,   SubCuenta,   Cantidad,   CantidadInventario,   Factor,   Unidad,   Paquete,   Costo,                            Impuesto1,   Impuesto2,   Impuesto3,   Almacen,   FechaRequerida,   DescripcionExtra,   ContUso)
+								SELECT @Sucursal, @CompraID, d.Renglon, d.RenglonID, d.RenglonTipo, d.Codigo, d.Articulo, d.SubCuenta, d.Cantidad, d.CantidadInventario, d.Factor, d.Unidad, d.Paquete, NULLIF(d.ProveedorArtCosto, 0.0), d.Impuesto1, d.Impuesto2, d.Impuesto3, d.Almacen, d.FechaRequerida, d.DescripcionExtra, d.ContUso
+									FROM CompraD d
+								 WHERE d.ID = @ID AND d.ProveedorArt = @Proveedor
 
-              INSERT SerieLoteMov (
-                     Sucursal,  Empresa,   Modulo, ID,        RenglonID,     Articulo,     SubCuenta,     SerieLote,     Cantidad)
-              SELECT @Sucursal, @Contacto, 'VTAS', @CompraID, slm.RenglonID, slm.Articulo, slm.SubCuenta, slm.SerieLote, slm.Cantidad
-                FROM CompraD d 
-                JOIN SerieLoteMov slm ON slm.Empresa = @Empresa AND slm.Modulo = 'COMS' AND slm.ID = d.ID AND slm.RenglonID = d.RenglonID AND slm.Articulo = d.Articulo AND ISNULL(slm.SubCuenta, '') = ISNULL(d.SubCuenta, '')
-               WHERE d.ID = @ID AND d.ProveedorArt = @Proveedor
+								INSERT SerieLoteMov (
+											 Sucursal,  Empresa,   Modulo, ID,        RenglonID,     Articulo,     SubCuenta,     SerieLote,     Cantidad)
+								SELECT @Sucursal, @Contacto, 'VTAS', @CompraID, slm.RenglonID, slm.Articulo, slm.SubCuenta, slm.SerieLote, slm.Cantidad
+									FROM CompraD d 
+									JOIN SerieLoteMov slm ON slm.Empresa = @Empresa AND slm.Modulo = 'COMS' AND slm.ID = d.ID AND slm.RenglonID = d.RenglonID AND slm.Articulo = d.Articulo AND ISNULL(slm.SubCuenta, '') = ISNULL(d.SubCuenta, '')
+								 WHERE d.ID = @ID AND d.ProveedorArt = @Proveedor
 
-              EXEC spCompraActualizarPrecios @CompraID, @UnicamenteNulos = 1
-            END
-            FETCH NEXT FROM crProv INTO @Proveedor
-          END
-          CLOSE crProv
-          DEALLOCATE crProv
-        END
-      END
+								EXEC spCompraActualizarPrecios @CompraID, @UnicamenteNulos = 1
+							END
+							FETCH NEXT FROM crProv INTO @Proveedor
+						END--cursor
+						CLOSE crProv
+						DEALLOCATE crProv
+					END--2capas
+				END--MovDestino
+      END--Existe cliente
     END
   END
 
@@ -161,7 +162,7 @@ AS BEGIN
      WHERE m.ID = @ID
 
     IF @Intercompania = 1
-    BEGIN
+    BEGIN--intercompañia
       IF @Empresa = @Contacto
         SELECT @Ok = 10420
       ELSE
@@ -171,53 +172,54 @@ AS BEGIN
 
         SELECT @MovDestino = NULL
         SELECT @MovDestino = NULLIF(RTRIM(MovDestino), '') FROM CfgECollaborationMov WHERE Modulo = @Modulo AND Mov = @Mov
-        IF @MovDestino IS NULL 
+        IF NOT @MovDestino IS NULL 
         BEGIN 
-          SELECT @Ok = 10033
-          RETURN 
-        END
+          --SELECT @Ok = 10033
+          --RETURN 
+        --END
 
-        SELECT @MovEmpresa = @Contacto, @MovProveedor = @Empresa
-        SELECT @MovAlmacen = m.Almacen,
-               @MovEnviarA = m.EnviarA,
-               @MovAgente  = p.Agente
-          FROM Venta m
-          JOIN Prov p ON p.Proveedor = @Empresa
-         WHERE m.ID = @ID
+					SELECT @MovEmpresa = @Contacto, @MovProveedor = @Empresa
+					SELECT @MovAlmacen = m.Almacen,
+								 @MovEnviarA = m.EnviarA,
+								 @MovAgente  = p.Agente
+						FROM Venta m
+						JOIN Prov p ON p.Proveedor = @Empresa
+					 WHERE m.ID = @ID
 
-        EXEC xpECollaborationGenerarEntradaCompra @Empresa, @Sucursal, @Modulo, @ID, @Estatus, @EstatusNuevo, @Usuario, @FechaEmision, @FechaRegistro, @Mov, @MovID, @MovTipo, @Ok OUTPUT, @OkRef OUTPUT,
-					          @MovEmpresa OUTPUT, @MovAlmacen OUTPUT, @MovCliente OUTPUT, @MovEnviarA OUTPUT, @MovAgente OUTPUT, @MovReferencia OUTPUT
+					EXEC xpECollaborationGenerarEntradaCompra @Empresa, @Sucursal, @Modulo, @ID, @Estatus, @EstatusNuevo, @Usuario, @FechaEmision, @FechaRegistro, @Mov, @MovID, @MovTipo, @Ok OUTPUT, @OkRef OUTPUT,
+											@MovEmpresa OUTPUT, @MovAlmacen OUTPUT, @MovCliente OUTPUT, @MovEnviarA OUTPUT, @MovAgente OUTPUT, @MovReferencia OUTPUT
 
-        SELECT @AlmSucursal = Sucursal FROM Alm WHERE UPPER(Almacen) = UPPER(@MovAlmacen)
-        INSERT Compra (
-               Sucursal,     SucursalDestino, OrigenTipo, Origen, OrigenID,  Estatus,     Directo, Usuario,  Mov,         Concepto, Empresa,     FechaEmision,  Referencia,     Proveedor,     Agente,     Almacen,     Moneda, TipoCambio, ListaPreciosEsp, Condicion, Vencimiento, Descuento, DescuentoGlobal, Proyecto, UEN, FormaEnvio)
-        SELECT @AlmSucursal, @AlmSucursal,    'E/COLLAB', Mov,    MovID,     'CONFIRMAR', 0,       @Usuario, @MovDestino, Concepto, @MovEmpresa, @FechaEmision, @MovReferencia, @MovProveedor, @MovAgente, @MovAlmacen, Moneda, TipoCambio, ListaPreciosEsp, Condicion, Vencimiento, Descuento, DescuentoGlobal, Proyecto, UEN, FormaEnvio
-          FROM Venta
-         WHERE ID = @ID
+					SELECT @AlmSucursal = Sucursal FROM Alm WHERE UPPER(Almacen) = UPPER(@MovAlmacen)
+					INSERT Compra (
+								 Sucursal,     SucursalDestino, OrigenTipo, Origen, OrigenID,  Estatus,     Directo, Usuario,  Mov,         Concepto, Empresa,     FechaEmision,  Referencia,     Proveedor,     Agente,     Almacen,     Moneda, TipoCambio, ListaPreciosEsp, Condicion, Vencimiento, Descuento, DescuentoGlobal, Proyecto, UEN, FormaEnvio)
+					SELECT @AlmSucursal, @AlmSucursal,    'E/COLLAB', Mov,    MovID,     'CONFIRMAR', 0,       @Usuario, @MovDestino, Concepto, @MovEmpresa, @FechaEmision, @MovReferencia, @MovProveedor, @MovAgente, @MovAlmacen, Moneda, TipoCambio, ListaPreciosEsp, Condicion, Vencimiento, Descuento, DescuentoGlobal, Proyecto, UEN, FormaEnvio
+						FROM Venta
+					 WHERE ID = @ID
 
-        SELECT @CompraID = SCOPE_IDENTITY() 
-        INSERT CompraD (
-               Sucursal,     ID,        Aplica, AplicaID, Renglon,   RenglonID,   RenglonTipo,   Codigo,   Articulo,   SubCuenta,   Cantidad,   CantidadInventario,   Factor,   Unidad,   Paquete,   Costo,    DescuentoTipo,   DescuentoLinea,   DescuentoImporte,   Impuesto1,   Impuesto2,   Impuesto3,   Almacen,     FechaRequerida,   DescripcionExtra,   ContUso)
-        SELECT @AlmSucursal, @CompraID, c.Mov,  c.MovID,  d.Renglon, d.RenglonID, d.RenglonTipo, d.Codigo, d.Articulo, d.SubCuenta, d.Cantidad, d.CantidadInventario, d.Factor, d.Unidad, d.Paquete, d.Precio, d.DescuentoTipo, d.DescuentoLinea, d.DescuentoImporte, d.Impuesto1, d.Impuesto2, d.Impuesto3, @MovAlmacen, d.FechaRequerida, d.DescripcionExtra, d.ContUso
-          FROM VentaD d
-          LEFT OUTER JOIN Venta v ON v.Empresa = @Empresa AND v.Mov = d.Aplica AND v.MovID = d.AplicaID AND v.Estatus IN ('PENDIENTE', 'CONCLUIDO')
-          LEFT OUTER JOIN Compra c ON c.ID = v.CompraID
-         WHERE d.ID = @ID
-        INSERT SerieLoteMov (
-               Sucursal,     Empresa,   Modulo, ID,        RenglonID, Articulo, SubCuenta, SerieLote, Cantidad)
-        SELECT @AlmSucursal, @Contacto, 'COMS', @CompraID, RenglonID, Articulo, SubCuenta, SerieLote, Cantidad
-          FROM SerieLoteMov
-         WHERE Modulo = 'VTAS' AND ID = @ID
+					SELECT @CompraID = SCOPE_IDENTITY() 
+					INSERT CompraD (
+								 Sucursal,     ID,        Aplica, AplicaID, Renglon,   RenglonID,   RenglonTipo,   Codigo,   Articulo,   SubCuenta,   Cantidad,   CantidadInventario,   Factor,   Unidad,   Paquete,   Costo,    DescuentoTipo,   DescuentoLinea,   DescuentoImporte,   Impuesto1,   Impuesto2,   Impuesto3,   Almacen,     FechaRequerida,   DescripcionExtra,   ContUso)
+					SELECT @AlmSucursal, @CompraID, c.Mov,  c.MovID,  d.Renglon, d.RenglonID, d.RenglonTipo, d.Codigo, d.Articulo, d.SubCuenta, d.Cantidad, d.CantidadInventario, d.Factor, d.Unidad, d.Paquete, d.Precio, d.DescuentoTipo, d.DescuentoLinea, d.DescuentoImporte, d.Impuesto1, d.Impuesto2, d.Impuesto3, @MovAlmacen, d.FechaRequerida, d.DescripcionExtra, d.ContUso
+						FROM VentaD d
+						LEFT OUTER JOIN Venta v ON v.Empresa = @Empresa AND v.Mov = d.Aplica AND v.MovID = d.AplicaID AND v.Estatus IN ('PENDIENTE', 'CONCLUIDO')
+						LEFT OUTER JOIN Compra c ON c.ID = v.CompraID
+					 WHERE d.ID = @ID
+					INSERT SerieLoteMov (
+								 Sucursal,     Empresa,   Modulo, ID,        RenglonID, Articulo, SubCuenta, SerieLote, Cantidad)
+					SELECT @AlmSucursal, @Contacto, 'COMS', @CompraID, RenglonID, Articulo, SubCuenta, SerieLote, Cantidad
+						FROM SerieLoteMov
+					 WHERE Modulo = 'VTAS' AND ID = @ID
 
-        IF (SELECT VentaPreciosImpuestoIncluido FROM EmpresaCfg WHERE Empresa = @Empresa) = 1
-          UPDATE CompraD 
-             SET Costo = Costo / (1.0+(((100.0+ISNULL(Impuesto2, 0.0))*(1+((ISNULL(Impuesto1, 0.0)+ISNULL(Impuesto3, 0.0))/100.0))-100.0)/100.0))
-           WHERE ID = @CompraID
+					IF (SELECT VentaPreciosImpuestoIncluido FROM EmpresaCfg WHERE Empresa = @Empresa) = 1
+						UPDATE CompraD 
+							 SET Costo = Costo / (1.0+(((100.0+ISNULL(Impuesto2, 0.0))*(1+((ISNULL(Impuesto1, 0.0)+ISNULL(Impuesto3, 0.0))/100.0))-100.0)/100.0))
+						 WHERE ID = @CompraID
 
-        IF NOT EXISTS(SELECT * FROM CompraD WHERE ID = @CompraID AND Aplica IS NOT NULL)
-          UPDATE Compra SET Directo = 1 WHERE ID = @CompraID
-      END
-    END
+					IF NOT EXISTS(SELECT * FROM CompraD WHERE ID = @CompraID AND Aplica IS NOT NULL)
+						UPDATE Compra SET Directo = 1 WHERE ID = @CompraID
+				END--Mov Configurado
+			END--existe prov
+    END--intercompañia
   END
 
   -- Cxc

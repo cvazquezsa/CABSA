@@ -11,7 +11,7 @@ IF NOT EXISTS(SELECT * FROM SysObjects WHERE name = 'ConceptoFE' AND type='U')
 		)
 /**** TERMINA: CONCEPTO FLujo de Efectivo ****/
 --DROP TABLE VtasProrrateo
-cte
+
 /**** INICIA: Factura prorrateada ****/
 if not exists (select * from sysobjects where id = object_id('dbo.VtasProrrateo') and type = 'U') 
 	CREATE TABLE dbo.VtasProrrateo(
@@ -39,3 +39,7 @@ if not exists (select * from sysobjects where id = object_id('dbo.VtasProrrateo'
 /**** INICIA: Flujo Efectivo Fondos ****/
 EXEC spAlter_Table 'Dinero', 'ConceptoFEFondos','varchar(100)'
 	--SELECT * FROm VtasProrrateo
+
+/**** INICIA: Deposito no identificado ****/
+EXEC spAlter_Table 'FormaPago', 'EsNoIdentificado','bit NULL'
+/**** TERMINA: Deposito no identificado ****/
