@@ -50,6 +50,7 @@ AS BEGIN
 	  @NuevoID		int,
 	  @Importe		money,
 	  @Impuestos		money,
+		@Retencion	money,
 	  @SubMovTipo		varchar(20),
           @Concepto		varchar(50),
           @Proyecto		varchar(50),
@@ -126,13 +127,16 @@ AS BEGIN
       SELECT @MovNuevo = VentaEstadistica FROM EmpresaCfgMovVenta WHERE Empresa = @Empresa
 
       INSERT INTO @TmpProrrateo
-      SELECT vp.EmpresaProrrateo, vp.SucursalProrrateo, vp.CCProrrateo, vp.CC2Prorrateo, vp.CC3Prorrateo, vp.EspacioProrrateo, vp.VINProrrateo, vp.ProyectoProrrateo, 
-							vp.UENProrrateo, vp.ActividadProrrateo
+      SELECT NULLIF(vp.EmpresaProrrateo,'') EmpresaProrrateo, NULLIF(vp.SucursalProrrateo,'') SucursalProrrateo, NULLIF(vp.CCProrrateo,'') CCProrrateo, 
+							NULLIF(vp.CC2Prorrateo,'') CC2Prorrateo, NULLIF(vp.CC3Prorrateo,'') CC3Prorrateo, NULLIF(vp.EspacioProrrateo,'') EspacioProrrateo, 
+							NULLIF(vp.VINProrrateo,''), NULLIF(vp.ProyectoProrrateo,'') ProyectoProrrateo, 
+							NULLIF(vp.UENProrrateo,'') UENProrrateo, NULLIF(vp.ActividadProrrateo,'') ActividadProrrateo
 				FROM VtasProrrateo vp
 					JOIN Venta v ON v.ID = vp.ID
 				WHERE v.ID = @ID
-				GROUP BY  vp.EmpresaProrrateo, vp.SucursalProrrateo, vp.CCProrrateo, vp.CC2Prorrateo, vp.CC3Prorrateo, vp.EspacioProrrateo, vp.VINProrrateo, vp.ProyectoProrrateo, 
-							vp.UENProrrateo, vp.ActividadProrrateo
+				GROUP BY  NULLIF(vp.EmpresaProrrateo,''), NULLIF(vp.SucursalProrrateo,''), NULLIF(vp.CCProrrateo,''), NULLIF(vp.CC2Prorrateo,''), 
+				NULLIF(vp.CC3Prorrateo,''), NULLIF(vp.EspacioProrrateo,''), NULLIF(vp.VINProrrateo,''), NULLIF(vp.ProyectoProrrateo,''), 
+							NULLIF(vp.UENProrrateo,''), NULLIF(vp.ActividadProrrateo,'')
 			
 			
 			--SELECT a.EmpresaProrrateo, a.SucursalProrrateo, a.CCProrrateo, a.CC2Prorrateo, a.CC3Prorrateo, a.EspacioProrrateo, a.VINProrrateo, a.ProyectoProrrateo, a.UENProrrateo, a.ActividadProrrateo
@@ -209,8 +213,14 @@ AS BEGIN
 
             EXEC spRenglonTipo @TipoArt, NULL, @RenglonTipo OUTPUT
 					
-            INSERT INTO VentaD (ID,       Renglon,  RenglonID,  RenglonTipo, Cantidad,   Almacen,   EnviarA,   Articulo,  Precio,                    PrecioSugerido,   Impuesto1,   Impuesto2,   Impuesto3,   Costo,   Contuso,      ContUso2,      ContUso3,      Factor,   FechaRequerida,   Sucursal,           UEN,           Espacio,           PrecioMoneda,   PrecioTipoCambio)
-                         SELECT @NuevoID, @Renglon, @RenglonID, @RenglonTipo, v.Cantidad, v.Almacen, v.EnviarA, @Articulo, @ImporteD, v.PrecioSugerido, v.Impuesto1, v.Impuesto2, v.Impuesto3, v.Costo, @CCProrrateo, @CC2Prorrateo, @CC2Prorrateo, v.Factor, v.FechaRequerida, @SucursalProrrateo, @UENProrrateo, @EspacioProrrateo, v.PrecioMoneda, v.PrecioTipoCambio           
+            INSERT INTO VentaD (ID,       Renglon,  RenglonID,  RenglonTipo,	Cantidad,   Almacen,   EnviarA,   Articulo,  Precio,    PrecioSugerido,
+															   Impuesto1,   Impuesto2,   Impuesto3,		Retencion1,		Retencion2,	 Retencion3,   Costo,   Contuso,      ContUso2,      
+																 ContUso3,      Factor,   FechaRequerida,   Sucursal,           UEN,           Espacio,           PrecioMoneda,   
+																 PrecioTipoCambio)
+                         SELECT @NuevoID, @Renglon, @RenglonID, @RenglonTipo, v.Cantidad, v.Almacen, v.EnviarA, @Articulo, @ImporteD, v.PrecioSugerido,
+																 v.Impuesto1, v.Impuesto2, v.Impuesto3, v.Retencion1, v.Retencion2, v.Retencion3, v.Costo, @CCProrrateo, @CC2Prorrateo, 
+																 @CC2Prorrateo, v.Factor, v.FechaRequerida, @SucursalProrrateo, @UENProrrateo, @EspacioProrrateo, v.PrecioMoneda, 
+																 v.PrecioTipoCambio           
               FROM VentaD v
              WHERE v.ID = @ID
                AND v.Articulo = @Articulo
@@ -227,13 +237,17 @@ AS BEGIN
         IF @OK IS NULL
         BEGIN
           SELECT @Importe = sum((Precio * Cantidad * Factor)* (1 - (ISNULL(DescuentoLinea,0.0)/100))),
-                 @Impuestos = sum((Precio * Cantidad * Factor)* (1 - (ISNULL(DescuentoLinea,0.0)/100))*Impuesto1/100)
+                 @Impuestos = sum((Precio * Cantidad * Factor)* (1 - (ISNULL(DescuentoLinea,0.0)/100))*
+									(ISNULL(Impuesto1,0)+ISNULL(impuesto2,0)+ISNULL(impuesto3,0))/100),
+								 @Retencion = sum((Precio * Cantidad * Factor)* (1 - (ISNULL(DescuentoLinea,0.0)/100))*
+									(ISNULL(Retencion1,0)+ISNULL(retencion2,0)+ISNULL(retencion3,0))/100)
             FROM VentaD
            WHERE ID = @NuevoID
   
           UPDATE VENTA SET
                  Importe = @Importe,
-                 Impuestos = @Impuestos
+                 Impuestos = @Impuestos,
+								 Retencion = @Retencion
            WHERE ID = @NuevoID
 					IF @@ERROR <> 0 SET @Ok = 1
         END--8

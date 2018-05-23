@@ -147,8 +147,8 @@ AS BEGIN
         BEGIN
           IF ROUND(@ImporteTotal, @RedondeoMonetarios) <= ROUND(@DineroSaldo, @RedondeoMonetarios)
           BEGIN
-            SELECT @DineroSaldo = ROUND(@DineroSaldo - @ImporteTotal, @RedondeoMonetarios)
-            IF @DineroSaldo = 0.0 
+            SELECT @DineroSaldo = ROUND(@DineroSaldo, @RedondeoMonetarios) - ROUND(@ImporteTotal, @RedondeoMonetarios) --CABSA
+            IF @DineroSaldo < 0.1 
               SELECT @DineroEstatus = 'CONCLUIDO'
             ELSE
               UPDATE Dinero SET Saldo = @DineroSaldo WHERE ID = @DineroID
