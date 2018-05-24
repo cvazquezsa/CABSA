@@ -4,6 +4,7 @@ EXEC spAlter_Table 'Compra', 'ConceptoFE','varchar(50)'
 EXEC spAlter_Table 'Venta', 'ConceptoFE','varchar(50)'
 EXEC spAlter_Table 'CXC', 'ConceptoFE','varchar(50)'
 EXEC spAlter_Table 'CXP', 'ConceptoFE','varchar(50)'
+EXEC spAlter_Table 'Dinero', 'ConceptoFE','varchar(50)'
 GO
 IF NOT EXISTS(SELECT * FROM SysObjects WHERE name = 'ConceptoFE' AND type='U')
 	CREATE TABLE ConceptoFE(
@@ -39,6 +40,12 @@ if not exists (select * from sysobjects where id = object_id('dbo.VtasProrrateo'
 /**** INICIA: Flujo Efectivo Fondos ****/
 EXEC spAlter_Table 'Dinero', 'ConceptoFEFondos','varchar(100)'
 	--SELECT * FROm VtasProrrateo
+
+IF NOT EXISTS(SELECT * FROM SysObjects WHERE name = 'ConceptoFEFondos' AND type='U')
+	CREATE TABLE ConceptoFEFondos(
+		ConceptoFEFondos varchar(50) PRIMARY KEY NOT NULL
+		)
+/**** FIN: Flujo Efectivo Fondos ****/
 
 /**** INICIA: Deposito no identificado ****/
 EXEC spAlter_Table 'FormaPago', 'EsNoIdentificado','bit NULL'

@@ -37,6 +37,18 @@
           <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
           <FullPath>01-Tablas.sql</FullPath>
         </FileNode>
+        <FileNode Name="02-MovClave.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
+          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
+          <FullPath>02-MovClave.sql</FullPath>
+        </FileNode>
+        <FileNode Name="03-Funciones.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
+          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
+          <FullPath>03-Funciones.sql</FullPath>
+        </FileNode>
         <FileNode Name="spAgregarProveedorExpress.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
           <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
@@ -54,6 +66,12 @@
           <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
           <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
           <FullPath>spCxAfectar.sql</FullPath>
+        </FileNode>
+        <FileNode Name="spDepositoAnticipadoAfectar.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>erp03.intelisiscloud.com</AssociatedConnSrvName>
+          <AssociatedConnUserName>sqlcabsa</AssociatedConnUserName>
+          <FullPath>spDepositoAnticipadoAfectar.sql</FullPath>
         </FileNode>
         <FileNode Name="spECollaboration.sql">
           <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:erp03.intelisiscloud.com:False:sqlcabsa</AssociatedConnectionMoniker>
