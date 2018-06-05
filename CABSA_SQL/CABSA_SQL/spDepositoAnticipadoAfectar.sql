@@ -145,7 +145,9 @@ AS BEGIN
            AND d.Moneda = @MovMoneda
         IF @DineroID IS NOT NULL
         BEGIN
-          IF ROUND(@ImporteTotal, @RedondeoMonetarios) <= ROUND(@DineroSaldo, @RedondeoMonetarios)
+          
+					IF ROUND(@DineroSaldo, @RedondeoMonetarios)-ROUND(@ImporteTotal, @RedondeoMonetarios) > -0.1 --CABSA Ticket 132
+					--IF ROUND(@ImporteTotal, @RedondeoMonetarios) <= ROUND(@DineroSaldo, @RedondeoMonetarios)
           BEGIN
             SELECT @DineroSaldo = ROUND(@DineroSaldo, @RedondeoMonetarios) - ROUND(@ImporteTotal, @RedondeoMonetarios) --CABSA
             IF @DineroSaldo < 0.1 

@@ -42,14 +42,23 @@ BEGIN
 				SELECT @Ok = 20480, @OkRef = 'Flujo de Efectivo'
 		END
 		
-		--Centro de Costos
+		--Centro de Costos --
 		SELECT TOP 1 @Renglon = Renglon, @Articulo = Articulo 
 			FROM VentaD 
 			WHERE ISNULL(ContUso,'') = '' 
 				AND @Mov IN (SELECT Valor FROM TablaValorD WHERE TablaValor = 'Lista blanca ContUso')
 				AND ID = @ID
 		IF ISNULL(@Renglon,0) <> 0
-			SELECT @OK = 10130, @OkRef = @Articulo	
+			SELECT @OK = 10130, @OkRef = @Articulo
+		
+		SELECT TOP 1 @Renglon = Renglon, @Articulo = Articulo 
+			FROM VentaD 
+			WHERE ISNULL(ContUso2,'') = '' 
+				AND @Mov IN (SELECT Valor FROM TablaValorD WHERE TablaValor = 'Lista blanca ContUso2')
+				AND ID = @ID
+		IF ISNULL(@Renglon,0) <> 0
+			SELECT @OK = 10130, @OkRef = CONCAT(@Articulo, ' ','Centro de costos 2')	
+			
 	END
 	IF @Modulo = 'COMS'
 	BEGIN
@@ -71,6 +80,14 @@ BEGIN
 				AND ID = @ID
 		IF ISNULL(@Renglon,0) <> 0
 			SELECT @OK = 10130, @OkRef = @Articulo
+		
+		SELECT TOP 1 @Renglon = Renglon, @Articulo = Articulo 
+			FROM CompraD 
+			WHERE ISNULL(ContUso2,'') = '' 
+				AND @Mov IN (SELECT Valor FROM TablaValorD WHERE TablaValor = 'Lista blanca ContUso2')
+				AND ID = @ID
+		IF ISNULL(@Renglon,0) <> 0
+			SELECT @OK = 10130, @OkRef = CONCAT(@Articulo, ' ','Centro de costos 2')	
 			
 	END
 	IF @Modulo = 'INV'
@@ -91,6 +108,15 @@ BEGIN
 				AND ID = @ID
 		IF ISNULL(@Renglon,0) <> 0
 			SELECT @OK = 10130, @OkRef = @Articulo
+/*
+		SELECT TOP 1 @Renglon = Renglon, @Articulo = Articulo 
+			FROM InvD 
+			WHERE ISNULL(ContUso2,'') = '' 
+				AND @Mov IN (SELECT Valor FROM TablaValorD WHERE TablaValor = 'Lista blanca ContUso2')
+				AND ID = @ID
+		IF ISNULL(@Renglon,0) <> 0
+			SELECT @OK = 10130, @OkRef = CONCAT(@Articulo, ' ','Centro de costos 2')
+			*/
 
 		
 			

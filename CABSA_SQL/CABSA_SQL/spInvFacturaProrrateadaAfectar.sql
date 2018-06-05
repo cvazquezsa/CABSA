@@ -125,26 +125,26 @@ AS BEGIN
     BEGIN
 
       SELECT @MovNuevo = VentaEstadistica FROM EmpresaCfgMovVenta WHERE Empresa = @Empresa
-
+			--SELECT * FROM VtasProrrateo WHERE ID = @ID
       INSERT INTO @TmpProrrateo
-      SELECT NULLIF(vp.EmpresaProrrateo,'') EmpresaProrrateo, NULLIF(vp.SucursalProrrateo,'') SucursalProrrateo, NULLIF(vp.CCProrrateo,'') CCProrrateo, 
+      SELECT NULLIF(vp.EmpresaProrrateo,'') EmpresaProrrateo, vp.SucursalProrrateo SucursalProrrateo, NULLIF(vp.CCProrrateo,'') CCProrrateo, 
 							NULLIF(vp.CC2Prorrateo,'') CC2Prorrateo, NULLIF(vp.CC3Prorrateo,'') CC3Prorrateo, NULLIF(vp.EspacioProrrateo,'') EspacioProrrateo, 
 							NULLIF(vp.VINProrrateo,''), NULLIF(vp.ProyectoProrrateo,'') ProyectoProrrateo, 
 							NULLIF(vp.UENProrrateo,'') UENProrrateo, NULLIF(vp.ActividadProrrateo,'') ActividadProrrateo
 				FROM VtasProrrateo vp
 					JOIN Venta v ON v.ID = vp.ID
 				WHERE v.ID = @ID
-				GROUP BY  NULLIF(vp.EmpresaProrrateo,''), NULLIF(vp.SucursalProrrateo,''), NULLIF(vp.CCProrrateo,''), NULLIF(vp.CC2Prorrateo,''), 
+				GROUP BY  NULLIF(vp.EmpresaProrrateo,''), vp.SucursalProrrateo, NULLIF(vp.CCProrrateo,''), NULLIF(vp.CC2Prorrateo,''), 
 				NULLIF(vp.CC3Prorrateo,''), NULLIF(vp.EspacioProrrateo,''), NULLIF(vp.VINProrrateo,''), NULLIF(vp.ProyectoProrrateo,''), 
 							NULLIF(vp.UENProrrateo,''), NULLIF(vp.ActividadProrrateo,'')
 			
-			
+			--SELECT * FROM @TmpProrrateo
 			--SELECT a.EmpresaProrrateo, a.SucursalProrrateo, a.CCProrrateo, a.CC2Prorrateo, a.CC3Prorrateo, a.EspacioProrrateo, a.VINProrrateo, a.ProyectoProrrateo, a.UENProrrateo, a.ActividadProrrateo
       --  FROM ArtProrrateo a
       --  JOIN VentaD v ON v.Articulo = a.Art 
       -- WHERE v.ID = @ID
       -- GROUP BY a.EmpresaProrrateo, a.SucursalProrrateo, a.CCProrrateo, a.CC2Prorrateo, a.CC3Prorrateo, a.EspacioProrrateo, a.VINProrrateo, a.ProyectoProrrateo, a.UENProrrateo, a.ActividadProrrateo
-
+			--SELECT * FROM @TmpProrrateo
 			DECLARE crVenta CURSOR FOR
        SELECT EmpresaProrrateo, SucursalProrrateo, CCProrrateo, CC2Prorrateo, CC3Prorrateo,
               EspacioProrrateo, VINProrrateo, ProyectoProrrateo, UENProrrateo, ActividadProrrateo
@@ -212,7 +212,7 @@ AS BEGIN
             SELECT @TipoArt = Tipo FROM Art WHERE Articulo = @Articulo
 
             EXEC spRenglonTipo @TipoArt, NULL, @RenglonTipo OUTPUT
-					
+					--SELECT 1,@SucursalProrrateo
             INSERT INTO VentaD (ID,       Renglon,  RenglonID,  RenglonTipo,	Cantidad,   Almacen,   EnviarA,   Articulo,  Precio,    PrecioSugerido,
 															   Impuesto1,   Impuesto2,   Impuesto3,		Retencion1,		Retencion2,	 Retencion3,   Costo,   Contuso,      ContUso2,      
 																 ContUso3,      Factor,   FechaRequerida,   Sucursal,           UEN,           Espacio,           PrecioMoneda,   
@@ -310,57 +310,14 @@ AS BEGIN
   END
 END
 GO
---BEGIN TRANSACTION
---DECLARE @Ok int, @OkRef varchar(255)
---EXEC spAfectar 'VTAS',2442, 'CANCELAR', 'Todo',NULL,'INTELISIS',0,0,@Ok OUTPUT, @OkRef OUTPUT
-----SELECT @@TRANCOUNT
---IF @@TRANCOUNT > 0
---BEGIN
---	--SELECT 1
---	ROLLBACK
---END
-/**************** fnValidarVtasProrrateo ****************/
-IF EXISTS (SELECT * FROM SysObjects WHERE name = 'fnValidarVtasProrrateo' AND type='TF')
-	DROP FUNCTION fnValidarVtasProrrateo
-GO
-CREATE FUNCTION fnValidarVtasProrrateo (@ID	int)
-RETURNS @Validación TABLE (
-	Ok	int,
-	OkRef	varchar(255)
-	)
-AS
+BEGIN TRANSACTION
+DECLARE @Ok int, @OkRef varchar(255)
+EXEC spAfectar 'VTAS',2525, 'AFECTAR', 'Todo',NULL,'INTELISIS',0,0,@Ok OUTPUT, @OkRef OUTPUT
+--SELECT @@TRANCOUNT
+IF @@TRANCOUNT > 0
 BEGIN
-	DECLARE
-		@ImporteArtVentaD money,
-		@ImporteArtTabla money,
-		@Articulo varchar(20),
-		@Ok	int,
-		@OkRef	varchar(255)
-
-	DECLARE crValidar CURSOR FAST_FORWARD FOR
-		SELECT DISTINCT Articulo FROM VentaD WHERe ID = @ID
-
-	OPEN crValidar
-	FETCH NEXT FROM crValidar INTO
-		@Articulo
-	WHILE @@FETCH_STATUS = 0
-	BEGIN
-		SELECT @ImporteArtVentaD = SUM(Precio * Cantidad) FROM VentaD WHERE ID = @ID AND Articulo = @Articulo
-		SELECT @ImporteArtTabla = SUM(Importe) FROM VtasProrrateo WHERE ID = @ID AND Articulo = @Articulo
-
-		IF @ImporteArtVentaD <> @ImporteArtTabla
-			SELECT @Ok=0, @OkRef = CONCAT('Los importes capturados no son coherentes: ',@Articulo)
-		IF @Ok = 0
-			BREAK
-		FETCH NEXT FROM crValidar INTO
-			@Articulo
-	END
-	IF @Ok IS NULL
-		SELECT @Ok = 1
-	CLOSE crValidar
-	DEALLOCATE crValidar
-	INSERT INTO @Validación SELECT @Ok, @OkRef
-	RETURN
+	--SELECT 1
+	ROLLBACK
 END
-GO
+
 --SELECT Ok, OkRef FROM fnValidarVtasProrrateo(2433)

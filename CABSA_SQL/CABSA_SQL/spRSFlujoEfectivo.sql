@@ -312,6 +312,7 @@ FiltroCtaDineroD, FiltroCtaDineroA, FiltroFechaD, FiltroFechaA, FiltroUso, Filtr
    AND Cxp.Mov = ISNULL(@InfoMov,Cxp.Mov)
    AND Cxp.Moneda = ISNULL(@Moneda, Cxp.Moneda)
    AND mt.Clave IN ('CXP.NC', 'CXP.CA', 'CXP.F', 'CXP.FAC', 'CXP.D', 'CXP.P', 'CXP.SCH', 'CXP.CAP')
+	 AND NOT Cxp.Mov IN ('Anticipo SI')
  GROUP BY prov.Categoria,Cxp.Proveedor, Prov.Nombre,Cxp.ConceptoFE, Cxp.Mov, Cxp.MovID, Cxp.FechaEmision, Cxp.Vencimiento, Cxp.Moneda
  UNION
  SELECT 'GAS', 'Gastos', 'CXP', NULL, 'CXP', g.Acreedor, g.Acreedor + ' - ' +p.Nombre, g.Mov + ' - ' +g.MovID, g.MovID, g.FechaEmision, g.Vencimiento, SUM(g.Importe) AS Importe, NULL, NULL, SUM(g.Saldo), SUM(g.Saldo), g.moneda, NULL, ISNULL(g.ConceptoFE,'NVACIO')
@@ -344,4 +345,4 @@ FiltroCtaDineroD, FiltroCtaDineroA, FiltroFechaD, FiltroFechaA, FiltroUso, Filtr
   SELECT * FROM @DatosDin ORDER BY Modulo DESC, ClienteProveedor, FechaEmision ASC
 END
 GO
-EXEC spRSFlujoEfectivo  'CABSA', 0, '1002023','SCOTIA9982','Pesos','20180501','20180530','Operación'
+--EXEC spRSFlujoEfectivo  'CABSA', 0, '1002023','SCOTIA9982','Pesos','20180501','20180530','Operación'

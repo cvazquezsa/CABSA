@@ -21,7 +21,7 @@ BEGIN
 	
 	SELECT @SubClave = SubClave FROM MovTipo WHERE Mov = @Mov AND Modulo = @Modulo
 	
-	IF @SubClave IN ('DIN.ABFON', 'DIN.TFON', 'DIN.CBFON')
+	IF @SubClave IN ('DIN.ABFON', 'DIN.TFON', 'DIN.CBFON', 'DIN.CHEFON', 'DIN.TFONR', 'DIN.TFONOP')
 		SELECT @SubClaveVal = 1
 	ELSE
 		SELECT @SubClaveVal = 0
@@ -31,3 +31,5 @@ END
 GO
 /**** TERMINA: CONCEPTO FLujo de Efectivo Fondos ****/
 --SELECT dbo.fnCABSubClaveConcFEFondo ('DIN', 'Ingreso Fondo NI')
+
+--SELECT * FROM Dinero WHERE Mov = 'DEvolucion Prima'
